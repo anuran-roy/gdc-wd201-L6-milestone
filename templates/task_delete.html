@@ -1,0 +1,5 @@
+<form method="POST">
+  {% csrf_token %}
+  <p>Are you sure you want to delete task "{{object}}"?</p>
+  <button type="submit">Confirm</button>
+</form>
