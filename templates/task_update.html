@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <title>Create Task</title>
+  </head>
+  <body>
+    <form method="POST" action="/update-task/{{object.id}}/">
+      {% csrf_token %}
+      <!-- <p class="m-2 p-2 text-xl font-bold">Add a new task:</p>
+      <label class="m-2 p-2" for="heading">Task heading:</label>
+      <input
+        class="p-2 m-2 border border-solid border-gray-300 rounded transition ease-in-out m-2 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+        type="text"
+        id="heading"
+        name="heading"
+      /><br />
+      <label class="m-2 p-2" for="task">Task description:</label><br />
+      <textarea
+        class="m-2 p-2 w-64 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-2 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+        id="task"
+        name="task"
+      ></textarea
+      ><br />  -->
+      <p>{{form}}</p>
+      <button
+        type="submit"
+        class="mx-2 px-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Update Task
+      </button>
+    </form>
+  </body>
+</html>

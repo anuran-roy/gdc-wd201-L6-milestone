@@ -19,22 +19,26 @@ from . import views
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
+    path("", views.index),
     path("tasks/", views.GenericTaskView.as_view(), name="Tasks"),
     path("add-task/", views.GenericTaskCreateView.as_view(), name="Add Task"),
+    path(
+        "update-task/<pk>/", views.GenericTaskUpdateView.as_view(), name="Update Task"
+    ),
     path(
         "delete-task/<pk>/",
         views.GenericTaskDeleteView.as_view(),
         name="Delete Task",
     ),
     path(
-        "complete_task/<int:index>/",
+        "complete_task/<pk>/",
         views.CompleteTaskView.as_view(),
         name="Mark a task as completed",
     ),
     path(
         "completed_tasks/", views.CompletedTasksView.as_view(), name="Completed Tasks"
     ),
-    path("task/<int:pk>/", views.GenericTaskDetailView.as_view(), name="View Task"),
+    path("task/<pk>/", views.GenericTaskDetailView.as_view(), name="View Task"),
     path("sessiontest/", views.session_storage_view),
     path("user/signup/", views.UserCreateView.as_view()),
     path("user/login/", views.UserLoginView.as_view()),
