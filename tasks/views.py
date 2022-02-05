@@ -35,7 +35,7 @@ def index(request):
 
 
 def sortPriorities(priorityValue, queryset):
-    for i in range(len(queryset) - 1):
+    for i in range(queryset.count() - 1):
         if queryset[i].priority == priorityValue:
             queryset[i].priority += 1
 
@@ -234,7 +234,7 @@ class GenericTaskView(LoginRequiredMixin, ListView):
 #         task_obj.save()
 #         queryset = Task.objects.get(deleted=False)
 
-#         for i in range(len(queryset) - 1):
+#         for i in range(queryset.count() - 1):
 #             ob1 = queryset[i]
 #             ob2 = queryset[i + 1]
 
