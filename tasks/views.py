@@ -20,17 +20,39 @@ from tasks.models import Task
 
 
 def index(request):
-    auth_status = (
-        "authenticated" if request.user.is_authenticated else "not authenticated"
-    )
-    return render(
-        request,
-        "index.html",
-        {"username": request.user, "auth_status": auth_status},
-    )
+    # auth_status = (
+    #     "authenticated" if request.user.is_authenticated else "not authenticated"
+    # )
+    # return render(
+    #     request,
+    #     "index.html",
+    #     {"username": request.user, "auth_status": auth_status},
+    # )
+    if request.user.is_authenticated:
+        return HttpResponseRedirect("/tasks")
+    else:
+        return HttpResponseRedirect("/user/login")
+
+
+def sortPriorities(priorityValue, queryset):
+    for i in range(len(queryset) - 1):
+        if queryset[i].priority == priorityValue:
+            queryset[i].priority += 1
+
+        if queryset[i].priority == queryset[i + 1].priority:
+            queryset[i + 1].priority += 1
+
+    return queryset
 
 
 class UserLoginView(LoginView):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # print(self.fields["title"].__dict__)
+        print(self.__dict__)
+        # self.fields["username"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+        # self.fields["password"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+
     template_name = "user_login.html"
 
 
@@ -41,6 +63,14 @@ class UserCreateView(CreateView):
 
 
 class TaskCreateForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # print(self.fields["title"].__dict__)
+        self.fields["title"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+        self.fields["description"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+        self.fields["priority"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+        self.fields["completed"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+
     def clean_title(self):  # Format: create_<field>
         # raise ValidationError("Title isn't clean")
         title = self.cleaned_data["title"]
@@ -50,96 +80,67 @@ class TaskCreateForm(ModelForm):
 
         return title
 
-    # def clean(self):
-    # queryset = Task.objects.filter(
-    #     deleted=False,
-    #     priority=self.cleaned_data["priority"],
-    #     # user=self.request.user,
-    # ).exists()
-
-    # if queryset:
-    #     queryset = Task.objects.filter(
-    #         deleted=False,
-    #         priority__gte=self.cleaned_data["priority"],
-    #         user=self.request.user,
-    #     )
-
-    #     for i in range(len(queryset) - 1):
-    #         if queryset[i].priority == self.cleaned_data["priority"]:
-    #             queryset[i].priority += 1
-    #             queryset[i].save()
-
-    #         if queryset[i].priority == queryset[i + 1].priority:
-    #             queryset[i + 1].priority += 1
-    #             queryset[i + 1].save()
-
     class Meta:
         model = Task
-        fields = ("priority", "title", "description")
+        fields = ("priority", "title", "description", "completed")
 
 
 class GenericTaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
     form_class = TaskCreateForm
+    login_url = "/user/login"
     template_name = "task_update.html"
     success_url = "/tasks"
 
-    def get_queryset(self):
-        print("Method GET_Queryset() called.")
-        queryset = Task.objects.filter(id=self.kwargs["pk"])
-        self.updateViewQueryObject = queryset
-
-        return queryset
+    # def get_queryset(self):
+    #     print("Method GET_Queryset() called.")
+    #     queryset = Task.objects.all().exclude(id=self.kwargs["pk"])
+    #     objectToDelete = Task.objects.get(id=self.kwargs["pk"])
+    #     # self.updateViewQueryObject = queryset
+    #     objectToDelete.delete()
+    #     return queryset
 
     def form_valid(self, form):
-        print(self.__dict__)
+        # print(f"\n\n\nObject Dict = \n{self.object.__dict__}\n\n\n")
         print("Form_Valid() for Update called.")
-        # self.object = form.save()
 
-        _ = self.updateViewQueryObject.update(
-            priority=form.cleaned_data["priority"],
-            title=form.cleaned_data["title"],
-            description=form.cleaned_data["description"],
-        )
+        print(f"\n\nObject pk = {self.object.id}\n\n")
+        print(f"\n\nKwargs pk = {self.kwargs['pk']}\n\n")
 
-        # _ = (
-        #     print(self.updateViewQueryObject.__dict__)
-        #     if query is not None
-        #     else print("Query unsuccessful")
-        # )
+        priority: int = int(self.object.priority)
+        # objectToDelete = Task.objects.get(id=self.kwargs["pk"])
+        # objectToDelete.delete()
+        # Task.refresh_from_db()
 
-        newQuery = Task.objects.filter(priority=form.cleaned_data["priority"])
+        if Task.objects.filter(priority=form.cleaned_data["priority"]).exists():
+            print("\n\nForm Valid Invoked from GenericTaskUpdateView\n\n")
+            self.object.priority = form.cleaned_data["priority"]
 
-        if newQuery:
-            queryset = Task.objects.filter(
-                completed=False,
-                deleted=False,
-                priority__gte=form.cleaned_data["priority"],
-                user=self.request.user,
+            queryset = (
+                Task.objects.filter(
+                    completed=False,
+                    deleted=False,
+                    priority__gte=form.cleaned_data["priority"],
+                    user=self.request.user,
+                )
+                .select_for_update()
+                .exclude(id=self.object.priority)
             )
 
-            for i in range(len(queryset) - 1):
-                if queryset[i].priority == form.cleaned_data["priority"]:
-                    queryset[i].priority += 1
-
-                if queryset[i].priority == queryset[i + 1].priority:
-                    queryset[i + 1].priority += 1
-
-            for i in range(len(queryset)):
-                queryset[i].save()
+            Task.objects.bulk_update(
+                sortPriorities(form.cleaned_data["priority"], queryset),
+                ["priority", "title", "description", "completed"],
+            )
 
         # self.object = form.save(commit=False)
         # self.object.user = self.request.user
+        self.object.save()
         # self.object.save()
-        self.updateViewQueryObject[0].save()
 
         return HttpResponseRedirect(self.get_success_url())
-        # return HttpResponseRedirect("/tasks")
 
 
 class GenericTaskCreateView(LoginRequiredMixin, CreateView):
-    # model = Task
-    # fields = ("title", "description")
     login_url = "/user/login"
     form_class = TaskCreateForm
     template_name = "task_create.html"
@@ -147,15 +148,12 @@ class GenericTaskCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         print("Form_Valid() for Create called.")
-        # self.object = form.save()
 
-        queryset = Task.objects.filter(
+        if Task.objects.filter(
             deleted=False,
             priority=form.cleaned_data["priority"],
             user=self.request.user,
-        ).exists()
-
-        if queryset:
+        ).exists():
             queryset = Task.objects.filter(
                 completed=False,
                 deleted=False,
@@ -163,28 +161,21 @@ class GenericTaskCreateView(LoginRequiredMixin, CreateView):
                 user=self.request.user,
             )
 
-            for i in range(len(queryset) - 1):
-                if queryset[i].priority == form.cleaned_data["priority"]:
-                    queryset[i].priority += 1
-
-                if queryset[i].priority == queryset[i + 1].priority:
-                    queryset[i + 1].priority += 1
-
-            for i in range(len(queryset)):
-                queryset[i].save()
+            Task.objects.bulk_update(
+                sortPriorities(form.cleaned_data["priority"], queryset),
+                ["priority"],
+            )
 
         self.object = form.save(commit=False)
         self.object.user = self.request.user
         self.object.save()
 
         return HttpResponseRedirect(self.get_success_url())
-        # return HttpResponseRedirect("/tasks")
 
 
 class GenericTaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = "task_detail.html"
-    # queryset = Task
 
     def get_success_url(self):
         return Task.objects.filter(
@@ -198,9 +189,6 @@ class GenericTaskDeleteView(LoginRequiredMixin, DeleteView):
     success_url = "/tasks"
 
     def get_success_url(self):
-        # return Task.objects.filter(
-        #     deleted=False, completed=False, user=self.request.user
-        # )
         return "/tasks"
 
 
@@ -269,17 +257,36 @@ class GenericTaskView(LoginRequiredMixin, ListView):
 
 
 class CompleteTaskView(LoginRequiredMixin, View):
-    def get(self, request, index):
-        tasks = Task.objects.filter(id=index, user=self.request.user)
+    def get(self, request, pk):
+        tasks = Task.objects.filter(id=pk, user=self.request.user)
         tasks.update(completed=True)
 
         return HttpResponseRedirect("/tasks")
 
 
 class CompletedTasksView(LoginRequiredMixin, ListView):
-    queryset = Task.objects.filter(deleted=False)
+    # queryset = Task.objects.filter(deleted=False)
     template_name = "completed.html"
     context_object_name = "completed"
+    paginate_by = 5
+
+    def get_queryset(self):
+        search_term = self.request.GET.get("search")
+        tasks = Task.objects.filter(
+            deleted=False, user=self.request.user, completed=True
+        )
+
+        if search_term:
+            tasks = Task.objects.filter(
+                title__icontains=search_term, completed=True, user=self.request.user
+            )
+
+        return tasks
+
+
+class AllTasksView(LoginRequiredMixin, ListView):
+    template_name = "all_tasks.html"
+    context_object_name = "all_tasks"
     paginate_by = 5
 
     def get_queryset(self):
@@ -288,7 +295,7 @@ class CompletedTasksView(LoginRequiredMixin, ListView):
 
         if search_term:
             tasks = Task.objects.filter(
-                title__icontains=search_term, completed=True, user=self.request.user
+                title__icontains=search_term, user=self.request.user
             )
 
         return tasks

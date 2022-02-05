@@ -27,24 +27,24 @@
       </li>
       <li class="mr-2">
         <a
-          href="#"
-          class="inline-block py-3 px-4 text-sm font-medium text-center text-white bg-[#EF4444] rounded-lg active"
-          aria-current="page"
+          href="/completed_tasks/"
+          class="inline-block py-3 px-4 text-sm font-medium text-center text-[#EF4444] rounded-lg hover:text-[#EF1111] hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
           >Complete</a
         >
       </li>
       <li class="mr-2">
         <a
-          href="/all_tasks/"
-          class="inline-block py-3 px-4 text-sm font-medium text-center text-[#EF4444] rounded-lg hover:text-[#EF1111] hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+          href="#"
+          class="inline-block py-3 px-4 text-sm font-medium text-center text-white bg-[#EF4444] rounded-lg active"
+          aria-current="page"
           >All</a
         >
       </li>
       <li></li>
     </ul>
-    <h2 class="p-2 m-2 text-2xl font-bold">Completed Tasks:</h2>
+    <h2 class="p-2 m-2 text-2xl font-bold">All Tasks:</h2>
     <ul class="list-disc p-4 m-4">
-      {% for i in completed %}
+      {% for i in all_tasks %}
       <li>
         {{forloop.counter}}.&nbsp; {{i}}
         <a href="/task/{{i.id}}"

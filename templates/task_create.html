@@ -4,34 +4,61 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Create Task</title>
   </head>
   <body>
-    <form method="POST" action="/add-task/">
-      {% csrf_token %}
-      <!-- <p class="m-2 p-2 text-xl font-bold">Add a new task:</p>
-      <label class="m-2 p-2" for="heading">Task heading:</label>
+    <a href="/tasks/"
+      ><button
+        style="align: right"
+        class="m-4 p-4 h-15 text-red-700 transition-colors duration-150 border border-red-500 rounded-lg focus:shadow-outline hover:bg-red-500 hover:text-red-100"
+      >
+        Go Back
+      </button></a
+    >
+    <center>
+      <h2 class="text-4xl font-bold m-4 p-4">Add Task</h2>
+      <form method="POST" action="/add-task/">
+        {% csrf_token %}
+        <!-- <p class="m-1 p-1 text-xl font-bold">Add a new task:</p>
+      <label class="m-1 p-1" for="heading">Task heading:</label>
       <input
-        class="p-2 m-2 border border-solid border-gray-300 rounded transition ease-in-out m-2 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+        class="p-1 m-1 border border-solid border-gray-300 rounded transition ease-in-out m-1 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
         type="text"
         id="heading"
         name="heading"
       /><br />
-      <label class="m-2 p-2" for="task">Task description:</label><br />
+      <label class="m-1 p-1" for="task">Task description:</label><br />
       <textarea
-        class="m-2 p-2 w-64 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-2 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+        class="m-1 p-1 w-64 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-1 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
         id="task"
         name="task"
       ></textarea
       ><br />  -->
-      <p>{{form}}</p>
-      <button
-        type="submit"
-        class="mx-2 px-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Add Task
-      </button>
-    </form>
+        <div class="container m-2 p-2">
+          <p id="formPriority" class="m-1 p-1">
+            {{form.priority.label}}:<br />{{form.priority}}
+          </p>
+          <p id="formTitle" class="m-1 p-1">
+            {{form.title.label}}:<br />{{form.title}}
+          </p>
+          <br />
+          <p id="formDescription" class="m-1 p-1">
+            {{form.description.label}}:<br />{{form.description}}
+          </p>
+          <br />
+          <p id="formCompleted" class="m-1 p-1">
+            {{form.completed.label}}:&nbsp;&nbsp;&nbsp;&nbsp;{{form.completed}}
+          </p>
+          <br />
+          <button
+            type="submit"
+            class="mx-4 px-4 bg-[#EF4444] hover:bg-[#EF1111] text-white font-bold text-2xl py-2 px-4 rounded w-96"
+          >
+            Add Task
+          </button>
+        </div>
+      </form>
+    </center>
   </body>
 </html>

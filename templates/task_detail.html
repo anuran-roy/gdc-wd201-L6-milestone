@@ -4,17 +4,19 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Document</title>
   </head>
   <body>
-    <h2>Title:</h2>
-    <p>{{object.title}}</p>
+    <h2 class="text-4xl font-bold m-3 p-1">Title:</h2>
+    <p class="text-lg m-3 p-1">{{object.title}}</p>
     <p>
-      <b>Created On:</b> {{object.created_date}}<br />
-      <b>Priority:</b> {{object.priority}}
+      <b class="text-lg font-bold m-3 p-1">Created On:</b>
+      {{object.created_date}}<br />
+      <b class="text-lg font-bold m-3 p-1">Priority:</b> {{object.priority}}
     </p>
     <br />
-    <h2>Description:</h2>
-    <p>{{object.description}}</p>
+    <h2 class="text-4xl font-bold m-3 p-1">Description:</h2>
+    <p class="text-lg m-3 p-1">{{object.description}}</p>
   </body>
 </html>
