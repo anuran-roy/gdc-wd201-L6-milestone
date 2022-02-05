@@ -4,12 +4,39 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Login</title>
   </head>
   <body>
-    <form action="" method="POST">
-      {% csrf_token %} {{form.as_p}}
-      <button type="submit">Signup</button>
-    </form>
+    <center>
+      <h2 class="text-4xl font-bold m-4 p-4">Signup</h2>
+      <form method="POST" action="">
+        {% csrf_token %}
+        <div class="container m-2 p-2">
+          <p id="usernameSignup" class="m-1 p-1">
+            {{form.username.label}}:<br />{{form.username}}
+          </p>
+          <p id="passwordSignup" class="m-1 p-1">
+            {{form.password1.label}}:<br />
+            <div class="border-width-1 border-black-600">
+              {{form.password1}}
+            </div>
+          </p>
+          <p id="passwordConfirmSignup" class="m-1 p-1">
+            {{form.password2.label}}:<br />
+            <div class="border-width-1 border-black-600">
+              {{form.password2}}
+            </div>
+          </p>
+          <br />
+          <button
+            type="submit"
+            class="mx-4 px-4 bg-[#EF4444] hover:bg-[#EF1111] text-white font-bold text-2xl py-2 px-4 rounded w-96"
+          >
+            Signup
+          </button>
+        </div>
+      </form>
+    </center>
   </body>
 </html>

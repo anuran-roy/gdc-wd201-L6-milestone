@@ -13,10 +13,10 @@
       <form method="POST" action="">
         {% csrf_token %}
         <div class="container m-2 p-2">
-          <p id="formPriority" class="m-1 p-1">
+          <p id="usernameLogin" class="m-1 p-1">
             {{form.username.label}}:<br />{{form.username}}
           </p>
-          <p id="formTitle" class="m-1 p-1">
+          <p id="passwordLogin" class="m-1 p-1">
             {{form.password.label}}:<br />
             <div class="border-width-1 border-black-600">
               {{form.password}}
