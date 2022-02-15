@@ -155,12 +155,12 @@ class CompleteTaskView(AuthMixin, View):
 class CompletedTasksView(AuthMixin, ListViewWithSearch):
     queryset = Task.objects.filter(completed=True).order_by("priority")
     template_name = "completed.html"
-    context_object_name = "completed"
+    context_object_name = "completed_tasks"
     paginate_by = 5
 
 
 class AllTasksView(AuthMixin, ListViewWithSearch):
-    queryset = Task.objects.all()
+    queryset = Task.objects.all().order_by("priority")
     template_name = "all_tasks.html"
     context_object_name = "all_tasks"
     paginate_by = 5
