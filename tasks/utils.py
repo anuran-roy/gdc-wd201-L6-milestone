@@ -5,7 +5,10 @@ from tasks.models import Task
 
 
 def process_priorities(priority: int, user):
-    # redundant_priorities: bool = True
+    """
+    This function processes the priority of the incoming task
+    and updates the priorities of the existing tasks accordingly.
+    """
     concerned_priority: int = priority
     affected_queries = Task.objects.filter(
         user=user, priority__gte=concerned_priority, completed=False, deleted=False
@@ -23,6 +26,11 @@ def process_priorities(priority: int, user):
 
 
 class AuthMixin(LoginRequiredMixin):
+    """
+    Mixin class for extending the LoginRequiredMixin for the project.
+    Helps to remove redundant variable values and logic
+    """
+
     login_url = "/user/login"
     success_url = "/tasks"
     model = Task
@@ -36,6 +44,11 @@ class ViewMixin(LoginRequiredMixin):
 
 
 class ListViewWithSearch(ListView):
+    """
+    Extends ListView class with appropriate querying functionality for searching
+    tasks accordingly. Needs a custom queryset that varies over classes to operate.
+    """
+
     def get_queryset(self):
         search_term = self.request.GET.get("search")
         tasks = self.queryset.filter(user=self.request.user)
