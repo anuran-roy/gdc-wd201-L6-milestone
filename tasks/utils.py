@@ -11,7 +11,9 @@ def process_priorities(priority: int, user):
         user=user, priority__gte=concerned_priority, completed=False, deleted=False
     ).order_by("priority")
 
-    print(f"Number of queries affected by this operation = {affected_queries.count()}")
+    print(
+        f"\n\nNumber of entries affected by this operation = {affected_queries.count()}\n\n"
+    )
     for i in affected_queries:
         if i.priority == concerned_priority:
             i.priority += 1
