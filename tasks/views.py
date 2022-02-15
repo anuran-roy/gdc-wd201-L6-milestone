@@ -113,23 +113,6 @@ class GenericTaskCreateView(AuthMixin, CreateView):
     template_name = "task_create.html"
 
     def form_valid(self, form):
-        # if Task.objects.filter(
-        #     deleted=False,
-        #     priority=form.cleaned_data["priority"],
-        #     user=self.request.user,
-        # ).exists():
-        #     pre_existing_tasks = Task.objects.filter(
-        #         completed=False,
-        #         deleted=False,
-        #         priority__gte=form.cleaned_data["priority"],
-        #         user=self.request.user,
-        #     ).order_by("priority")
-
-        #     Task.objects.bulk_update(
-        #         sort_priorities(form.cleaned_data["priority"], pre_existing_tasks),
-        #         ["priority"],
-        #     )
-
         process_priorities(
             priority=form.cleaned_data["priority"], user=self.request.user
         )
