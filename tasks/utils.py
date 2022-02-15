@@ -1,30 +1,23 @@
-# from django.views import View
 from django.views.generic.list import ListView
-
-# from django.views.generic.edit import CreateView, UpdateView, DeleteView
-# from django.views.generic.detail import DetailView
-
-# from django.views.generic.delete import DeleteView
-
-# from django.forms import ModelForm
-
-# from django.contrib.auth.forms import UserCreationForm
-
-# from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from tasks.models import Task
 
 
-def sortPriorities(priorityValue, queryset):
-    for i in range(queryset.count() - 1):
-        if queryset[i].priority == priorityValue:
-            queryset[i].priority += 1
+def process_priorities(priority: int, user):
+    # redundant_priorities: bool = True
+    concerned_priority: int = priority
+    affected_queries = Task.objects.filter(
+        user=user, priority__gte=concerned_priority, completed=False, deleted=False
+    ).order_by("priority")
 
-        if queryset[i].priority == queryset[i + 1].priority:
-            queryset[i + 1].priority += 1
+    print(f"Number of queries affected by this operation = {affected_queries.count()}")
+    for i in affected_queries:
+        if i.priority == concerned_priority:
+            i.priority += 1
+            concerned_priority += 1
 
-    return queryset
+    Task.objects.bulk_update(affected_queries, ["priority"])
 
 
 class AuthMixin(LoginRequiredMixin):

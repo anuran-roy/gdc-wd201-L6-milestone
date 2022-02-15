@@ -17,33 +17,6 @@
         Logout
       </button></a
     >
-
-    <ul class="flex flex-wrap m-4 p-4">
-      <li class="mr-2">
-        <a
-          href="#"
-          class="inline-block py-3 px-4 text-sm font-medium text-center text-white bg-[#EF4444] rounded-lg active"
-          aria-current="page"
-          >Incomplete</a
-        >
-      </li>
-      <li class="mr-2">
-        <a
-          href="/completed_tasks/"
-          class="inline-block py-3 px-4 text-sm font-medium text-center text-[#EF4444] rounded-lg hover:text-[#EF1111] hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-          >Complete</a
-        >
-      </li>
-      <li class="mr-2">
-        <a
-          href="/all_tasks/"
-          class="inline-block py-3 px-4 text-sm font-medium text-center text-[#EF4444] rounded-lg hover:text-[#EF1111] hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-          >All</a
-        >
-      </li>
-      <li></li>
-    </ul>
-
     <h1 class="m-4 p-4 text-center text-3xl font-bold">Tasks Manager</h1>
     <form method="GET" action="/tasks/">
       <div class="flex justify-center">
@@ -85,6 +58,31 @@
         </div>
       </div>
     </form>
+    <ul class="flex flex-wrap m-4 p-4">
+      <li class="mr-2">
+        <a
+          href="#"
+          class="inline-block py-3 px-4 text-sm font-medium text-center text-white bg-[#EF4444] rounded-lg active"
+          aria-current="page"
+          >Incomplete</a
+        >
+      </li>
+      <li class="mr-2">
+        <a
+          href="/completed_tasks/"
+          class="inline-block py-3 px-4 text-sm font-medium text-center text-[#EF4444] rounded-lg hover:text-[#EF1111] hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+          >Complete</a
+        >
+      </li>
+      <li class="mr-2">
+        <a
+          href="/all_tasks/"
+          class="inline-block py-3 px-4 text-sm font-medium text-center text-[#EF4444] rounded-lg hover:text-[#EF1111] hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+          >All</a
+        >
+      </li>
+      <li></li>
+    </ul>
     <a href="/add-task/"
       ><button
         type="button"

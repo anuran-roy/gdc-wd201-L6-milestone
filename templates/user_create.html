@@ -7,9 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Login</title>
   </head>
-  <body>
+  <body class="flex justify-center">
     <center>
-      <h2 class="text-4xl font-bold m-4 p-4">Signup</h2>
+      <h1 class="text-5xl font-bold m-4 p-4 justify-center m-4 p-4">Todo Manager</h1><br />
+      <h2 class="text-4xl m-4 p-4">Signup</h2><br />
       <form method="POST" action="">
         {% csrf_token %}
         <div class="container m-2 p-2">
@@ -21,6 +22,14 @@
             <div class="border-width-1 border-black-600">
               {{form.password1}}
             </div>
+          </p>
+          <p class="justify-center" align="justify">
+            <ul class="list-disc m-4 p-4 flex-wrap justify-center">
+              <li>Your password can’t be too similar to your other personal information.</li>
+              <li>Your password must contain at least 8 characters.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+              <li>Your password can’t be a commonly used password.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+              <li>Your password can’t be entirely numeric.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+            </ul>
           </p>
           <p id="passwordConfirmSignup" class="m-1 p-1">
             {{form.password2.label}}:<br />

@@ -15,7 +15,3 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
-
-    class Meta:
-        # unique_together = (("user", "priority", "completed"),)
-        ordering = ["priority"]

@@ -9,13 +9,14 @@ from django.views.generic.detail import DetailView
 
 from django.forms import ModelForm
 
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.models import User
 
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from tasks.models import Task
-from tasks.utils import sortPriorities, AuthMixin, ListViewWithSearch
+from tasks.utils import process_priorities, AuthMixin, ListViewWithSearch
 
 
 def index(request):
@@ -25,15 +26,48 @@ def index(request):
         return HttpResponseRedirect("/user/login")
 
 
-class UserLoginView(LoginView):
+class UserCreationFormCustom(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+        self.fields["password1"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+        self.fields["password2"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+        if self._meta.model.USERNAME_FIELD in self.fields:
+            self.fields[self._meta.model.USERNAME_FIELD].widget.attrs[
+                "autofocus"
+            ] = True
 
+
+class UserAuthenticationForm(AuthenticationForm):
+    def __init__(self, request=None, *args, **kwargs):
+        """
+        The 'request' parameter is set for custom auth use by subclasses.
+        The form data comes in via the standard 'data' kwarg.
+        """
+        self.request = request
+        self.user_cache = None
+        super().__init__(*args, **kwargs)
+
+        # Set the max length and label for the "username" field.
+        self.username_field = User._meta.get_field(User.USERNAME_FIELD)
+        username_max_length = self.username_field.max_length or 254
+        self.fields["username"].max_length = username_max_length
+        self.fields["username"].widget.attrs["maxlength"] = username_max_length
+        if self.fields["username"].label is None:
+            self.fields["username"].label = capfirst(self.username_field.verbose_name)
+
+        self.fields["username"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+        self.fields["password"].widget.attrs["class"] = "p-4 m-4 bg-gray-200/75"
+
+
+class UserLoginView(LoginView):
+    form_class = UserAuthenticationForm
     template_name = "user_login.html"
+    success_url = "/user/login/"
 
 
 class UserCreateView(CreateView):
-    form_class = UserCreationForm
+    form_class = UserCreationFormCustom
     template_name = "user_create.html"
     success_url = "/user/login/"
 
@@ -64,26 +98,12 @@ class GenericTaskUpdateView(AuthMixin, UpdateView):
     template_name = "task_update.html"
 
     def form_valid(self, form):
-        if Task.objects.filter(priority=form.cleaned_data["priority"]).exists():
-            self.object.priority = form.cleaned_data["priority"]
-
-            queryset = (
-                Task.objects.filter(
-                    completed=False,
-                    deleted=False,
-                    priority__gte=form.cleaned_data["priority"],
-                    user=self.request.user,
-                )
-                .select_for_update()
-                .exclude(priority=self.object.priority)
+        if "priority" in form.changed_data:
+            process_priorities(
+                priority=form.cleaned_data["priority"], user=self.request.user
             )
 
-            Task.objects.bulk_update(
-                sortPriorities(form.cleaned_data["priority"], queryset),
-                ["priority", "title", "description", "completed"],
-            )
-
-        self.object.save()
+        self.object = form.save()
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -93,27 +113,26 @@ class GenericTaskCreateView(AuthMixin, CreateView):
     template_name = "task_create.html"
 
     def form_valid(self, form):
-        if Task.objects.filter(
-            deleted=False,
-            priority=form.cleaned_data["priority"],
-            user=self.request.user,
-        ).exists():
-            queryset = (
-                Task.objects.filter(
-                    completed=False,
-                    deleted=False,
-                    priority__gte=form.cleaned_data["priority"],
-                    user=self.request.user,
-                )
-                .select_for_update()
-                .order_by("priority")
-            )
+        # if Task.objects.filter(
+        #     deleted=False,
+        #     priority=form.cleaned_data["priority"],
+        #     user=self.request.user,
+        # ).exists():
+        #     pre_existing_tasks = Task.objects.filter(
+        #         completed=False,
+        #         deleted=False,
+        #         priority__gte=form.cleaned_data["priority"],
+        #         user=self.request.user,
+        #     ).order_by("priority")
 
-            Task.objects.bulk_update(
-                sortPriorities(form.cleaned_data["priority"], queryset),
-                ["priority"],
-            )
+        #     Task.objects.bulk_update(
+        #         sort_priorities(form.cleaned_data["priority"], pre_existing_tasks),
+        #         ["priority"],
+        #     )
 
+        process_priorities(
+            priority=form.cleaned_data["priority"], user=self.request.user
+        )
         self.object = form.save(commit=False)
         self.object.user = self.request.user
         self.object.save()
@@ -128,7 +147,7 @@ class GenericTaskDetailView(LoginRequiredMixin, DetailView):
     def get_success_url(self):
         return Task.objects.filter(
             deleted=False, completed=False, user=self.request.user
-        )
+        ).order_by("priority")
 
 
 class GenericTaskDeleteView(AuthMixin, DeleteView):
@@ -136,7 +155,7 @@ class GenericTaskDeleteView(AuthMixin, DeleteView):
 
 
 class GenericTaskView(LoginRequiredMixin, ListViewWithSearch):
-    queryset = Task.objects.filter(deleted=False, completed=False)
+    queryset = Task.objects.filter(deleted=False, completed=False).order_by("priority")
     template_name = "tasks.html"
     context_object_name = "tasks"
     paginate_by = 5
@@ -144,14 +163,14 @@ class GenericTaskView(LoginRequiredMixin, ListViewWithSearch):
 
 class CompleteTaskView(AuthMixin, View):
     def get(self, request, pk):
-        tasks = Task.objects.filter(id=pk, user=self.request.user)
+        tasks = Task.objects.filter(id=pk, user=self.request.user).order_by("priority")
         tasks.update(completed=True)
 
         return HttpResponseRedirect("/tasks")
 
 
 class CompletedTasksView(AuthMixin, ListViewWithSearch):
-    queryset = Task.objects.filter(completed=True)
+    queryset = Task.objects.filter(completed=True).order_by("priority")
     template_name = "completed.html"
     context_object_name = "completed"
     paginate_by = 5
@@ -173,3 +192,7 @@ def session_storage_view(request):
     request.session["total_views"] = total_views + 1
 
     return HttpResponse(f"<h1>Total number of views = {total_views}</h1>")
+
+
+def delete_all(request):
+    queryset = Task.objects.filter(user=request.user).order_by("priority")
